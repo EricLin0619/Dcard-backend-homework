@@ -1,9 +1,13 @@
 package main
+
 import (
+	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
 	"github.com/gorilla/mux"
+	"github.com/redis/go-redis/v9"
 )
 
 type Advertisement struct {
@@ -21,8 +25,16 @@ type Condition struct {
 	Platform []string `json:"platform"`
 }
 
-
 func main() {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:	  "localhost:6379",
+		Password: "", // 没有密码，默认值
+		DB:		  0,  // 默认DB 0
+	})
+	ctx := context.Background()
+	
+	dbTest(rdb, ctx)
+	
     r := mux.NewRouter()
     // Routes consist of a path and a handler function.
     r.HandleFunc("/", YourHandler)
@@ -34,9 +46,11 @@ func main() {
     log.Fatal(http.ListenAndServe(":8000", r))
 }
 
-func YourHandler(w http.ResponseWriter, r *http.Request) {
-    w.Write([]byte("Gorilla!\n"))
+func dbTest (db *redis.Client, ctx context.Context) {
+	val, _ := db.Get(ctx, "test").Result()
+	fmt.Println(val)
 }
+
 
 
 

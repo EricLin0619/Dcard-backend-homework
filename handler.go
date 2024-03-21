@@ -27,3 +27,7 @@ func GetAdHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("platform", platform)
 }
 
+func YourHandler(w http.ResponseWriter, r *http.Request) {
+    w.Write([]byte("Gorilla!\n"))
+}
+

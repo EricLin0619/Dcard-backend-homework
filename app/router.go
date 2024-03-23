@@ -10,8 +10,8 @@ func (a *App) LoadRoutes() *mux.Router {
 	ctx := context.Background()
 	adHandler := &handler.Repo{Db: a.Db, Ctx: ctx}
 	r := mux.NewRouter()
-	r.HandleFunc("/api/v1/ad", adHandler.CreatePostHandler).Methods("POST")
+	r.HandleFunc("/api/v1/ad", adHandler.CacheHandler).Methods("POST")
 	r.HandleFunc("/api/v1/ad", adHandler.GetAdHandler).Methods("GET")
-	r.HandleFunc("/", adHandler.YourHandler).Methods("GET")
+	r.HandleFunc("/", adHandler.GetHandler).Methods("GET")
 	return r
 }

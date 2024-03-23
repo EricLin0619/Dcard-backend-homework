@@ -8,7 +8,7 @@ import (
 
 func (a *App) LoadRoutes() *mux.Router {
 	ctx := context.Background()
-	adHandler := &handler.Repo{Db: a.Db, Ctx: ctx}
+	adHandler := &handler.Repo{Db: a.RedisDb, Ctx: ctx}
 	r := mux.NewRouter()
 	r.HandleFunc("/api/v1/ad", adHandler.CacheHandler).Methods("POST")
 	r.HandleFunc("/api/v1/ad", adHandler.GetAdHandler).Methods("GET")

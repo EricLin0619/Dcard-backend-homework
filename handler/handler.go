@@ -16,20 +16,11 @@ type Repo struct {
 func (repo *Repo) CacheHandler(w http.ResponseWriter, r *http.Request) {
 	var post Advertisement
 	_ = json.NewDecoder(r.Body).Decode(&post)
-	byteSlice, _ := json.MarshalIndent(post, "", "  ")
-	repo.Db.RPush(repo.Ctx, "cacheList", string(byteSlice))             // push to list
-	repo.Db.Publish(repo.Ctx, "cacheChannel", string(byteSlice)) // publish to channel
-	// if err != nil {
-	// 	panic(err)
-	// }
-	w.Write([]byte("push success!\n"))
-}
-
-func (repo *Repo) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
-	var post Advertisement
-	_ = json.NewDecoder(r.Body).Decode(&post)
+	fmt.Println(post)
 	byteSlice, _ := json.MarshalIndent(post, "", "  ")
 	fmt.Println(string(byteSlice))
+	repo.Db.RPush(repo.Ctx, "cacheList", string(byteSlice))          // push to list
+	w.Write([]byte("push success!\n"))
 }
 
 func (repo *Repo) GetAdHandler(w http.ResponseWriter, r *http.Request) {

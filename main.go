@@ -8,8 +8,9 @@ import (
 func main() {
     app := app.NewApp("8000")
 	go func () {
-		app.ListenToChannel()
+		app.ProcessWriteQueue()
 	} ()
+	
 	app.Run()
 }
 

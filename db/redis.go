@@ -5,7 +5,7 @@ import (
 )
 
 
-func NewDb () *redis.Client{
+func NewRedisRepo () *redis.Client{
 	rdb := redis.NewClient(&redis.Options{
 		Addr:	  "localhost:6379",
 		Password: "", 

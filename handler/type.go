@@ -1,12 +1,12 @@
 package handler
-import (
-	"time"
-)
+
+import "time"
+
 
 type Advertisement struct {
 	Title string `json:"title"`
-	StartAt time.Time `json:"start_at"`
-	EndAt time.Time `json:"end_at"`
+	StartAt *time.Time `json:"startAt"`
+	EndAt *time.Time `json:"endAt"`
 	Conditions []Condition `json:"conditions"`
 }
 

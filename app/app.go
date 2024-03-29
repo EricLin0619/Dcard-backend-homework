@@ -1,34 +1,15 @@
 package app
-
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"reflect"
-	"strings"
 	"time"
-
+	"github.com/EricLin0619/DcardBackend/utils"
 	"github.com/EricLin0619/DcardBackend/db"
 	"github.com/gorilla/mux"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
-type Advertisement struct {
-	Title string `json:"title"`
-	StartAt time.Time `json:"startAt"`
-	EndAt time.Time `json:"endAt"`
-	Conditions []Condition `json:"conditions"`
-}
-
-type Condition struct {
-	AgeStart *int `json:"ageStart"`
-	AgeEnd *int `json:"ageEnd"`
-	Gender []string `json:"gender"`
-	Country []string `json:"country"`
-	Platform []string `json:"platform"`
-}
 
 type App struct {
 	Port       string
@@ -51,39 +32,19 @@ func (a *App) Run() {
 	log.Fatal(http.ListenAndServe(a.Port, a.Router))
 }
 
-func (a *App) ProcessWriteQueue() {
-	ctx := context.Background()
-	var adInRedis Advertisement
-	data, _ := a.RedisDb.LPop(ctx, "cacheList").Result()
-	json.Unmarshal([]byte(data), &adInRedis) // unmarshal to struct
-	fmt.Println(reflect.TypeOf(adInRedis.StartAt))
-	fmt.Println(adInRedis.StartAt)
-
-	var advertisementId int
-	a.PostgresDb.Exec("INSERT INTO advertisements (title, start_at, end_at) VALUES ($1, $2, $3)", adInRedis.Title, adInRedis.StartAt, adInRedis.EndAt)
-	a.PostgresDb.Raw("SELECT max(id) FROM advertisements").Scan(&advertisementId)
-	for _, condition := range adInRedis.Conditions {
-		gender := strings.Join(condition.Gender, ", ")
-		country := strings.Join(condition.Country, ", ")
-		platform := strings.Join(condition.Platform, ", ")
-		a.PostgresDb.Exec("INSERT INTO conditions (advertisement_id, age_start, age_end, gender, country, platform) VALUES ($1, $2, $3, $4, $5, $6)", advertisementId, condition.AgeStart, condition.AgeEnd, gender, country, platform)
-	}
-	fmt.Println("Success")
+type Result struct {
+	Title string `json:"title"`
+	StartAt time.Time `json:"startAt"`
+	EndAt time.Time `json:"endAt"`
+	AgeStart *int `json:"age_start"`
+	AgeEnd *int `json:"age_end"`
 }
 
-// func (a *App) ListenToChannel() {
-// 	fmt.Println("ListenToChannel goroutine started")
-// 	ctx := context.Background()
-// 	pubsub := a.RedisDb.Subscribe(ctx, "cacheChannel")
-// 	for {
-// 		msg, err := pubsub.ReceiveMessage(ctx)
-// 		if err != nil {
-// 			fmt.Println("There is an error in ListenToChannel goroutine.")
-// 			panic(err)
-// 		}
-// 		fmt.Println(msg.Channel, msg.Payload)
-// 	}
-// }
+func (a *App) GetDataTest()  {
+	var ad []Result
+	a.PostgresDb.Model(&db.Advertisement{}).Select("title, start_at, end_at, conditions.age_start, conditions.age_end").Joins("JOIN conditions ON advertisements.id = conditions.advertisement_id").Scan(&ad)
+	fmt.Println(utils.StructToJson(ad))
+}
 
 // func (a *App) ConnectPostgres() {
 // 	dsn := "host=localhost user=postgres password=1234 dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai"

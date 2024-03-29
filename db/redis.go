@@ -13,3 +13,4 @@ func NewRedisRepo () *redis.Client{
 	})
 	return rdb
 }
+
